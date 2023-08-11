@@ -63,11 +63,15 @@ class StoresById(Resource):
     
     def patch(self,id):
         store = Store.query.filter_by(id=id).first()
-
-        for attr in request.form:
-            setattr(store, attr, request.form[attr])
         
-        db.session.add(store)
+        if not store:
+            return make_response({"error": "Store not found"}, 404)
+
+        data = request.get_json() 
+    
+        store.name = data.get('name', store.name)
+        store.address = data.get('address', store.address)
+
         db.session.commit()
 
         return make_response(store.to_dict(), 200)
@@ -174,7 +178,7 @@ class InventoryById(Resource):
         inventory = Inventory.query.filter_by(id=id).first()
 
         for attr in request.form:
-            setattr(inventory, attr, request.form[attr])
+            setattr(inventory, attr, request.json[attr])
         
         db.session.add(inventory)
         db.session.commit()
