@@ -141,6 +141,10 @@ api.add_resource(BeersById, "/beers/<int:id>")
 
 class Inventories(Resource):
 
+    def get(self):
+        inventories = [inventory.to_dict(rules=('-store', '-beer')) for inventory in Inventory.query.all()]
+        return make_response(inventories, 200)
+
     def post(self):
         try:
             inventory_entry = Inventory(
@@ -158,6 +162,13 @@ class Inventories(Resource):
 api.add_resource(Inventories, "/inventory")
 
 class InventoryById(Resource):
+
+    def get(self, id):
+        inventory = Inventory.query.filter_by(id=id).first()
+
+        if inventory:
+            return make_response(inventory.to_dict(rules=('-store', '-beer')), 200)
+        return make_response({"error": "Inventory not found"}, 404)
 
     def patch(self, id):
         inventory = Inventory.query.filter_by(id=id).first()
