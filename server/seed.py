@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
         print("Creating stores...")
         gas_station = Store(name="7-Eleven", address='San Diego, CA')
-        convenience = Store(name="Bev-mo", address="Mordor")
+        convenience = Store(name="BevMo", address="Mordor")
         grocery = Store(name="Ralphs", address="Linda Vista, CA")
         stores = [gas_station, convenience, grocery]
 
@@ -55,6 +55,7 @@ if __name__ == '__main__':
         e3 = Inventory(store=grocery, beer=beer3, quantity=6)
         e4 = Inventory(store=gas_station, beer=beer3, quantity=2)
         inventory = [e1, e2, e3, e4]
+        
         db.session.add_all(stores)
         db.session.add_all(beers)
         db.session.add_all(inventory)
