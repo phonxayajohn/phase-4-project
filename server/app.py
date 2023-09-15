@@ -29,7 +29,7 @@ api = Api(app)
 
 @app.route('/')
 def index():
-    return '<h1>Phase 4 Project Server</h1>'
+    return '<h1>Phase 5 Project Server</h1>'
 
 class Stores(Resource):
     def get(self):
