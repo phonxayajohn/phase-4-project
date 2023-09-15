@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Switch, Route } from "react-router-dom";
+import { useNavigate, Route, Routes } from "react-router-dom";
 import Navbar from "./Navbar";
 import Store from "./Store"
 import Home from "./Home"
@@ -7,31 +7,69 @@ import AddStore from "./AddStore"
 import AddProduct from "./AddProduct"
 import Inventory from "./Inventory"
 import StoreEditForm from "./StoreEditForm";
+import Login from "./Login";
+import SignUp from "./SignUp";
 
 function App() {
+  const [page, setPage] = useState('/login')
+  const [currentUser, setCurrentUser] = useState(null)
+  const navigate = useNavigate()
+
+
+  useEffect(() => {
+    fetch('/session')
+      .then((res) => {
+        if (res.ok) {
+          res.json()
+            .then((currentUser) => setCurrentUser(currentUser))
+        } else {
+          setCurrentUser(null)
+        }
+      })
+  }, [])
+
+  const handleLogout = () => {
+    fetch('/logout', {
+      method: "DELETE"
+    })
+      .then((res) => {
+        if (res.ok) {
+          setCurrentUser(null)
+        }
+        navigate('/login')
+      })
+  }
+
+
   return (
-    <>
-      <Navbar />
-      <Switch>
-        <Route exact path='/stores/:id'>
-          <Store />
-        </Route>
-        <Route exact path="/">
-          <Home />
-        </Route>
-        <Route exact path="/add_store">
-          <AddStore />
-        </Route>
-        <Route exact path="/add_product">
-          <AddProduct />
-        </Route>
-        <Route exact path="/inventory">
-          <Inventory />
-        </Route>
-        <Route path="/stores/:id/edit" element={<StoreEditForm />} />
-      </Switch>
-    </>
+    <div>
+      {currentUser && <Navbar handleLogout={handleLogout} />}
+
+      <Routes>
+        <Route path="/login" element={<Login setCurrentUser={setCurrentUser} />} />
+        <Route path="/signup" element={<SignUp setCurrentUser={setCurrentUser} />} />
+
+        {currentUser === null ? (
+          <>
+            <Route path="/login" element={<Login setCurrentUser={setCurrentUser} />} />
+            <Route path="/signup" element={<SignUp setCurrentUser={setCurrentUser} />} />
+          </>
+        ) : currentUser !== null && (
+          <>
+            <Route path="/stores/:id" element={<Store />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/add_store" element={<AddStore />} />
+            <Route path="/add_product" element={<AddProduct />} />
+            <Route path="/inventory" element={<Inventory />} />
+            <Route path="/stores/:id/edit" element={<StoreEditForm />} />
+          </>
+        )}
+
+
+      </Routes>
+    </div>
   )
+
 }
 
 export default App;

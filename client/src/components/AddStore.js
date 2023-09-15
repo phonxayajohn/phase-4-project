@@ -24,8 +24,8 @@ function AddStoreForm() {
     }
 
     return (
-        <section className="container">
-            <div className="card">
+        <section className="add-container">
+            <div className="add-card">
                 <h2>Add New Store</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="new-store-form">

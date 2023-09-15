@@ -26,8 +26,8 @@ function AddProductForm() {
     }
 
     return (
-        <section className="container">
-            <div className="card">
+        <section className="add-container">
+            <div className="add-card">
                 <h2>Add New Product</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="new-beer-form">
