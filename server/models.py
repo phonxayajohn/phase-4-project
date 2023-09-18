@@ -1,8 +1,9 @@
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 
-from config import db
+from config import db, bcrypt
 
 class Store(db.Model, SerializerMixin):
     __tablename__ = 'stores'
@@ -71,8 +72,9 @@ class Inventory(db.Model, SerializerMixin):
 
     store_id = db.Column(db.Integer, db.ForeignKey("stores.id"))
     beer_id = db.Column(db.Integer, db.ForeignKey("beers.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    serialize_rules = ("-store.inventory", "-beer.inventory")
+    serialize_rules = ("-store.inventory", "-beer.inventory", "-user_id")
 
     @validates('quantity')
     def validate_quantity(self, key, quantity):
@@ -80,6 +82,33 @@ class Inventory(db.Model, SerializerMixin):
             raise ValueError("Please enter valid quantity")
         return quantity
 
-
     def __repr__(self):
         return f"<Inventory {self.store_id}, {self.beer_id}, {self.quantity}>"
+class User(db.Model, SerializerMixin):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String, unique=True, nullable=False)
+    _password_hash = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    inventory = db.relationship("Inventory", backref="user")
+
+    serialize_rules = ('-_password_hash', '-inventory')
+
+    @hybrid_property
+    def password_hash(self):
+        return self._password_hash
+    
+    @password_hash.setter
+    def password_hash(self, password):
+        password_hash = bcrypt.generate_password_hash(
+            password.encode('utf-8')
+        )
+        self._password_hash = password_hash.decode('utf-8')
+
+    def authenticate(self, password):
+        return bcrypt.check_password_hash(
+            self._password_hash, password.encode('utf-8')
+        )
+    

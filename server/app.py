@@ -3,11 +3,12 @@
 # Standard library imports
 
 # Remote library imports
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, session
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 import os
-from models import db, Store, Beer, Inventory
+from models import db, Store, Beer, Inventory, User
+import secrets
 
 # Local imports
 from config import app, db, api
@@ -26,10 +27,75 @@ migrate = Migrate(app,db)
 db.init_app(app)
 api = Api(app)
 
+secret_key = secrets.token_hex(16)
+
+app.secret_key = secret_key
 
 @app.route('/')
 def index():
     return '<h1>Phase 5 Project Server</h1>'
+
+# Link Inventories to UserID - Inventories are specific to each User
+class Register(Resource):
+    
+    def get(self):
+        users = [user.to_dict() for user in User.query.all()]
+        return make_response(users, 200)
+    
+    def post(self):
+        data = request.get_json()
+
+        try:
+            new_user = User(
+                email = data['email']
+            )
+            new_user.password_hash = data['password']
+            db.session.add(new_user)
+            db.session.commit()
+
+            session['user_id'] = new_user.id
+
+            return make_response(new_user.to_dict(), 201)
+        
+        except:
+            return make_response({"error": "Unprocessable Content"}, 422)
+api.add_resource(Register, '/register')
+        
+class CheckSession(Resource):
+    
+    def get(self):
+        user_id = session.get('user_id')
+
+        if not user_id:
+            return {"error": "Unathorized"}, 401
+
+        current_user = User.query.filter(User.id == user_id).first()
+        return current_user.to_dict(), 200
+api.add_resource(CheckSession, '/session', endpoint='session')
+
+class Login(Resource):
+    
+    def post(self):
+        data = request.get_json()
+
+        check_user = User.query.filter(User.email == data['email']).first()
+
+        if check_user and check_user.authenticate(data['password']):
+            session['user_id'] = check_user.id
+
+            return make_response(check_user.to_dict(), 200)
+        return {"error": "Unathorized"}, 401
+api.add_resource(Login, '/login', endpoint='login')
+
+class Logout(Resource):
+
+    def delete(self):
+
+        if session.get('user_id'):
+            session['user_id'] = None
+            return {}, 204
+        return {"error": "Unathorized"}, 401
+api.add_resource(Logout, '/logout', endpoint='logout')
 
 class Stores(Resource):
     def get(self):
@@ -123,8 +189,10 @@ class BeersById(Resource):
     def patch(self,id):
         beer = Beer.query.filter_by(id=id).first()
 
-        for attr in request.form:
-            setattr(beer, attr, request.form[attr])
+        data = request.json
+
+        for attr in data:
+            setattr(beer, attr, data[attr])
         
         db.session.add(beer)
         db.session.commit()
@@ -146,8 +214,21 @@ api.add_resource(BeersById, "/beers/<int:id>")
 class Inventories(Resource):
 
     def get(self):
-        inventories = [inventory.to_dict(rules=('-store', '-beer')) for inventory in Inventory.query.all()]
-        return make_response(inventories, 200)
+
+        inventories = Inventory.query.all()
+
+        serialized_inventories = []
+
+        for inventory in inventories:
+            serialized_inventory = inventory.to_dict()
+
+            serialized_inventory['beer'] = inventory.beer.to_dict()
+            serialized_inventory['store'] = inventory.store.to_dict()
+
+            serialized_inventories.append(serialized_inventory)
+        
+        return make_response(serialized_inventories, 200)
+
 
     def post(self):
         try:
@@ -169,7 +250,7 @@ class InventoryById(Resource):
 
     def get(self, id):
         inventory = Inventory.query.filter_by(id=id).first()
-
+        
         if inventory:
             return make_response(inventory.to_dict(rules=('-store', '-beer')), 200)
         return make_response({"error": "Inventory not found"}, 404)
@@ -177,15 +258,35 @@ class InventoryById(Resource):
     def patch(self, id):
         inventory = Inventory.query.filter_by(id=id).first()
 
-        for attr in request.form:
-            setattr(inventory, attr, request.json[attr])
+        data = request.json
+
+        for attr in data:
+            setattr(inventory, attr, data[attr])
         
         db.session.add(inventory)
         db.session.commit()
 
         return make_response(inventory.to_dict(), 200)
     
+    def delete(self, id):
+        inventory = Inventory.query.filter_by(id=id).first()
+
+        if inventory:
+            db.session.delete(inventory)
+            db.session.commit()
+
+            return make_response({}, 204)
+        return make_response({"error": "Inventory not found"}, 404)
+    
 api.add_resource(InventoryById, "/inventory/<int:id>")
+
+class InventoryByUser(Resource):
+
+    def get(self, user_id):
+        user_id = session.get('user_id')
+        user_inventory = [inventory.to_dict() for inventory in Inventory.query.filter(Inventory.user_id == user_id)]
+
+        return make_response(user_inventory, 200)
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
