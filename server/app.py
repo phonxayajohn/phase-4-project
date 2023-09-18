@@ -35,7 +35,6 @@ app.secret_key = secret_key
 def index():
     return '<h1>Phase 5 Project Server</h1>'
 
-# Link Inventories to UserID - Inventories are specific to each User
 class Register(Resource):
     
     def get(self):
