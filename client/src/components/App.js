@@ -11,7 +11,6 @@ import Login from "./Login";
 import SignUp from "./SignUp";
 
 function App() {
-  const [page, setPage] = useState('/login')
   const [currentUser, setCurrentUser] = useState(null)
   const navigate = useNavigate()
 
@@ -24,9 +23,12 @@ function App() {
             .then((currentUser) => setCurrentUser(currentUser))
         } else {
           setCurrentUser(null)
+          if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+            navigate('/login')
+          }
         }
       })
-  }, [])
+  }, [navigate])
 
   const handleLogout = () => {
     fetch('/logout', {

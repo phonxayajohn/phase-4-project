@@ -1,4 +1,9 @@
 import React, { useEffect, useState } from "react";
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Button from '@mui/material/Button';
+import { TextField } from "@mui/material";
+
 
 function StoreEditForm(props) {
     const id = props.storeId
@@ -45,19 +50,26 @@ function StoreEditForm(props) {
 
     }
 
+    const buttonStyle = { color: 'black' }
+
     return (
-        <section className="container">
+        <Box className="container">
             {showForm && (
-            <div className="card">
+            <Card className="card">
+
                 <h2>Edit Store</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="edit-store-form">
                         <label>Name:</label>
                         <br />
-                        <input 
+                        <TextField 
                             className="input-text" 
                             type="text" 
-                            value={name} 
+                            value={name}
+                            margin="dense"
+                            variant="filled"
+                            size="small"
+                            label="Store Name"
                             onChange={e => setName(e.target.value)} 
                         />
                     </div>
@@ -65,20 +77,25 @@ function StoreEditForm(props) {
                     <div className="edit-store-form">
                         <label>Address:</label>
                         <br />
-                        <input 
+                        <TextField 
                             className="input-text" 
                             type="text" 
-                            value={address} 
+                            value={address}
+                            margin="dense"
+                            variant="filled"
+                            size="small"
+                            label="Address"
                             onChange={e => setAddress(e.target.value)} 
                         />
                     </div>
                     <br />
-                    <input className="submit-button" type="submit" value="Submit" />
-                    <button type="button" onClick={handleCancel}>Cancel</button>
+                    <Button style={buttonStyle} type="submit" value="Submit">Submit</Button>
+                    <Button style={buttonStyle} type="button" onClick={handleCancel}>Cancel</Button>
                 </form>
-            </div>
+
+            </Card>
             )}
-        </section>
+        </Box>
     )
  
 }

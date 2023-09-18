@@ -12,9 +12,7 @@ function Navbar({ handleLogout }) {
     return (
         <header>
             <nav>
-            <div className="navtitle">
-                <Typography variant="h1">Beer Depot</Typography>
-            </div>
+                <Typography variant="h1" fontWeight="bold">BEER DEPOT</Typography>
                 <ul>
                     <li className="navlinks">
                         <Button size="medium" variant="contained" style={buttonStyle} component={Link} to="/">Home</Button>

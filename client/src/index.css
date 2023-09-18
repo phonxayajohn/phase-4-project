@@ -6,6 +6,7 @@ body {
 
 a {
   color: black;
+  text-decoration: none;
 }
 
 header {
@@ -49,29 +50,29 @@ ul {
 }
 
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
 }
 
 .card {
-  flex: 1;
+
   margin: 10px;
-  background-color: #cccab4;
-  outline: 1px solid black;
-  border-color: black;
-  border-radius: 8px;
-  max-width: 300px;
+  background-color: #cccab4 !important;
+  width: 200px !important;
+}
+
+.button-container {
+  background-color: #bebba8 !important;
 }
 
 .add-card {
-  background-color:#cccab4;
-  outline: 1px solid black;
-  border-color: black;
-  border-radius: 8px;
+  background-color:#cccab4 !important;
+  padding-bottom: 10px;
+  margin-top: 15px;
 }
 
 .store-inventory-table {
@@ -98,6 +99,34 @@ ul {
   background-color: #f2f2f2;
 }
 
+.beer-inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2px;
+}
+
+.beer-inventory-table th, .beer-invetory-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.beer-inventory-table td {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.beer-inventory-table th {
+  text-align: center;
+  background-color: #f2f2f2;
+}
+
+.beer-inventory-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.beer-inventory {
+  text-align: center;
+}
+
 .inventory-header {
   text-align: center;
   margin: 10%;
@@ -117,7 +146,7 @@ ul {
   background-color: white !important;
 }
 
-.modal {
+.modal-container {
   position: fixed;
   z-index: 1;
   left: 0;
@@ -131,10 +160,13 @@ ul {
 
 }
 
-
-.modal-content {
+.modal {
   border-radius: 5px;
   padding: 2rem;
   background-color: white;
   width: 25em;
+}
+
+.input-text {
+  background: rgba(255, 255, 255, 0.575) !important;
 }

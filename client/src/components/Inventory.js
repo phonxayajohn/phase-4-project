@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import React from "react";
-import { DataGrid, GridOverlay } from '@mui/x-data-grid';
+import { DataGrid } from '@mui/x-data-grid';
 import "../index.css"
 
 function InventoryComponent() {
@@ -10,7 +10,6 @@ function InventoryComponent() {
         fetch('/inventory')
             .then(res => res.json())
             .then(data => {
-                console.log(data)
                 setInventory(data)
             })
             .catch(error => {
@@ -37,17 +36,18 @@ function InventoryComponent() {
     }))
 
     return (
-        <div style={{ height: 400, width: '100%', paddingTop: '20px' }}>
+        <div style={{ height: 650, width: '100%', paddingTop: '20px' }}>
             <DataGrid
                 rows={rows}
                 columns={columns}
                 initialState={{
                     pagination: {
-                        paginationModel: { page: 0, pageSize: 5 },
+                        paginationModel: { page: 0, pageSize: 10 },
                     },
                 }}
-                pageSizeOptions={[5, 10]}
+                pageSizeOptions={[10, 20]}
                 style={customDataGridStyle}
+                disableRowSelectionOnClick
             />
         </div>
     );
@@ -55,25 +55,3 @@ function InventoryComponent() {
 }
 
 export default InventoryComponent
-
-/* <div>
-    <h1>Inventory</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Store Name</th>
-                <th>Beer Name</th>
-                <th>Quantity</th>
-            </tr>
-        </thead>
-        <tbody>
-            {inventory.map(entry => (
-                <tr key={entry.id}>
-                    <td>{entry.store.name}</td>
-                    <td>{entry.beer.name}</td>
-                    <td>{entry.quantity}</td>
-                </tr>
-            ))}
-        </tbody>
-    </table>
-</div> */
